@@ -22,11 +22,11 @@ coords.c_number=3
 coords.c_positions=[trivial_gen.gauss_point((0.0,0.0),50) for i in range(3)]
 """
 
-#coords = trivial_gen.balanced_multiple_gauss_blobs(10.0,3.0,20,5,0.5)
-coords = trivial_gen.croissants(30,5.0,0.5)
+coords = trivial_gen.balanced_multiple_gauss_blobs(10.0,3.0,20,8,0.5)
+#coords = trivial_gen.croissants(30,5.0,0.5)
 
 newcoords = deepcopy(coords)
-newcoords = hierarchical.agglomerative_single_link(newcoords,2)
+newcoords = hierarchical.divisive_k_means(newcoords,2)
 
 #print(Std.statistics_distance_multi_cluster(newcoords))
 #print(Std.triangulation_distance_within(newcoords.coords))

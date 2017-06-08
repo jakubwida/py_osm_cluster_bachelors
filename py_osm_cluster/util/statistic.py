@@ -12,5 +12,5 @@ def avg_coords(coords):
 
 #unfinished
 def stdev_coords(coords):pass
-	avg = avg_coords(coords)
-	x,y =
+#avg = avg_coords(coords)
+#x,y =

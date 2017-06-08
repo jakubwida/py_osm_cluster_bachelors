@@ -127,11 +127,48 @@ def agglomerative_complete_link(data_obj,target_c_num):
 		#replaces distances that lead to A with larger of distances of A-X, B-X (X is the same)
 		#removes all distances that are connected to b
 
-		#NOT READY
 
 
-	#to trzeba zrobić tak:
-	# dystans jest liczony między każdymi dowama klastrami
-	# kiedy 2 klastry się łaczą w 1, dystansy pomiędzy nim a innymi klastrami staje się większym z dystansów z 2 starych klastrów. tak samo można rozwiazać algorytm single linkage, bez kosztownych iteracji.
-	#najlepiej to zrealizować przez macierz ale jeszcze na to rzucę okiem.
-	#teraz kupię zeszyt i w nim to rozpoiszę
+
+import random
+import py_osm_cluster.util.statistic as statistic
+import copy
+import itertools
+""" a simple k-means algorithm, outputting list of clusters, each represented by lsit of indexes of coords in data_obj. requires intital list of indexes (clustered sublist of data_obj and desired number of clusters as cluster_num)"""
+def simplified_k_means(data_obj,indexes,iterations,cluster_num):
+	centers = random.sample(indexes,cluster_num)
+	centers = [data_obj.coords[i] for i in centers]
+	#print(indexes)
+
+	for i in range(iterations):
+		subclusters =[[] for i in range(cluster_num)]
+		distances = [i for i in indexes]
+		distances = [[geom.distance(data_obj.coords[i],j) for j in centers] for i in distances ]
+		for num,i in enumerate(distances):
+			index = i.index(min(i))
+			subclusters[index].append(num)
+
+		for num,i in enumerate(subclusters):
+			centroided = [data_obj.coords[j] for j in i]
+			if len(centroided) > 0:
+				print(centroided)
+				centers[num] = statistic.avg_coords(centroided)
+			else:
+				centers[num] = random.choice(data_obj.coords)
+	return subclusters
+
+def divisive_k_means(data_obj,level):
+
+	length = len(data_obj.coords)
+	data_obj.labels=[0 for i in range(length)]
+	subclusters = [list(range(length))]
+	for i in range(level):
+
+		for num,i in enumerate(subclusters):
+			subclusters[num] = simplified_k_means(data_obj,i,5,3)
+		subclusters = list(itertools.chain(*subclusters))
+	for num,i in enumerate(subclusters):
+		for j in i:
+			data_obj.labels[j] = num
+
+	return data_obj
