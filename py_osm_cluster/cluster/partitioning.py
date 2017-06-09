@@ -122,3 +122,27 @@ def k_means_balanced(data_obj,iterations,use_default_centers=False):
 		for index,val in enumerate(mini_c):
 			data_obj.c_positions[index] = centroid_rand(data_obj,val)
 	return data_obj
+
+
+
+#TEMPORARY TEST
+"""requirres Coords object with cluster number set. . As fallback it chooses random point instead of 0.0"""
+def k_means_animated(data_obj,iterations,anim_obj,use_default_centers=False):
+	if use_default_centers == False:
+		data_obj.c_positions=[]
+		data_obj.c_positions = random.sample(data_obj.coords,data_obj.c_number)
+	for i in range(iterations):
+		data_obj.labels = []
+		for coord in data_obj.coords:
+			distances = [[distance(coord,center),num] for num,center in enumerate(data_obj.c_positions)]
+			distances = sorted(distances,key=lambda x: x[0])
+			data_obj.labels.append(distances[0][1])
+		mini_c =[[] for i in data_obj.c_positions]
+		for num,val in enumerate(data_obj.labels):
+			mini_c[val].append(data_obj.coords[num])
+		#print(mini_c)
+		for index,val in enumerate(mini_c):
+			data_obj.c_positions[index] = centroid_rand(data_obj,val)
+		anim_obj.add_step(data_obj)
+	
+	return data_obj
