@@ -7,3 +7,8 @@ Generalny zbiór rzeczy które trzeba uzyskać:
 6. dodać funkcję ogólnej ewaluacji na wielu przykładach - tj wykres porównania tych wszystkich współczynników dla testów na różnych klastrach
 7. napisać to wszystko
 8. najlepiej dowiedzić się czy mogę to zrobić do końca czerwca bo inaczej nie wygląda żebym zdążył
+
+
+To co trzeba zrobić w najbliższym czasie:
+	- napisać klasę GeneralEvaluator która używa Lineplot z visualistion żeby wykreślać zminaę różnych parametrów klastrowania dla różnych funkcji/danych
+	- przekabacić funkcje klastrowania tak żeby miały standarrdowy input, i żeby dały się animować

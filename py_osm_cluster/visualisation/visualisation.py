@@ -33,6 +33,10 @@ def get_color_shape(num):
 	shape_out = shapes[(math.floor(num/len(colors)))%len(shapes)]
 	return(col_out+shape_out)
 
+def get_color(num):
+	colors=['b','g','r','c','m','y','k']
+	return(colors[num%len(colors)]+'l')
+
 def plot_coords(data_obj):
 	x,y = util_unzip(data_obj.coords)
 	plt.plot(x,y,'ro')
@@ -52,3 +56,8 @@ def plot_coords_label_color(data_obj):
 def plot_centers_by_label_color(data_obj):
 	for num,val in enumerate(data_obj.c_positions):
 		plt.plot(val[0],val[1],get_color_shape(num),markersize=10)
+
+def lineplot(datasets,labels):
+	for num,i in datasets:
+		plt.plot(dataset,label=labels[num])
+	

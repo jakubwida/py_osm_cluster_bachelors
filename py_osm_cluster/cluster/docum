@@ -1,0 +1,11 @@
+standard function for clustering:
+1. is not destructive
+2. returns a modified util.Coords object
+3. takes only the util.Coords as a normal argument
+4. keyword arguments are described as:
+
+use_default_centers:False  -> uses cluster centers provided in util.Coords object
+iterations:10  -> number of required iterations
+anim_obj:None -> an animation object that may be used. if provided, animation steps will be pushed to it.
+
+more objects might be added if it will be nescesary

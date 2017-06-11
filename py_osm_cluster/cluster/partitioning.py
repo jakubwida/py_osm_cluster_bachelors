@@ -40,11 +40,26 @@ def median_centroid_rand(data_obj,coords):
 
 #actual clustering
 
-"""requires Coords object with cluster number  fallback centroid is at 0.0 (when one centroid has no closest points compared to others)"""
-def k_means(data_obj,iterations,use_default_centers=False):
-	if use_default_centers == False:
+"""requires Coords object with cluster number  fallback centroid is at 0.0 (when one centroid has no closest points compared to others)
+kwargs:
+	iterations
+	use_default_centers
+	anim_obj
+"""
+def k_means(data_obj,**kwargs):
+	if "use_default_centers" not in kwargs or kwargs["use_default_centers"] == False:
 		data_obj.c_positions=[]
 		data_obj.c_positions = random.sample(data_obj.coords,data_obj.c_number)
+
+	iterations  = 10
+	if "iterations" in kwargs:
+		iterations = kwargs["iterations"]
+
+	anim_obj = kwargs.get("anim_obj",None)
+	animated = False
+	if anim_obj!=None:
+		animated = True
+
 	for i in range(iterations):
 		data_obj.labels = []
 		for coord in data_obj.coords:
@@ -57,13 +72,33 @@ def k_means(data_obj,iterations,use_default_centers=False):
 		#print(mini_c)
 		for index,val in enumerate(mini_c):
 			data_obj.c_positions[index] = centroid(val)
+		if animated:
+			anim_obj.add_step(data_obj)
 	return data_obj
 
-"""requirres Coords object with cluster number set. . As fallback it chooses random point instead of 0.0"""
-def k_means_fallback(data_obj,iterations,use_default_centers=False):
-	if use_default_centers == False:
+
+
+
+"""requirres Coords object with cluster number set. . As fallback it chooses random point instead of 0.0
+kwargs:
+	iterations
+	use_default_centers
+	anim_obj
+"""
+def k_means_fallback(data_obj,**kwargs):
+	if "use_default_centers" not in kwargs or kwargs["use_default_centers"] == False:
 		data_obj.c_positions=[]
 		data_obj.c_positions = random.sample(data_obj.coords,data_obj.c_number)
+
+	iterations  = 10
+	if "iterations" in kwargs:
+		iterations = kwargs["iterations"]
+
+	anim_obj = kwargs.get("anim_obj",None)
+	animated = False
+	if anim_obj!=None:
+		animated = True
+
 	for i in range(iterations):
 		data_obj.labels = []
 		for coord in data_obj.coords:
@@ -76,13 +111,33 @@ def k_means_fallback(data_obj,iterations,use_default_centers=False):
 		#print(mini_c)
 		for index,val in enumerate(mini_c):
 			data_obj.c_positions[index] = centroid_rand(data_obj,val)
+		if animated:
+			anim_obj.add_step(data_obj)
 	return data_obj
 
-""" requires Coords object with custer nuber set. chooses median as centroid and fallback"""
-def k_medians_fallback(data_obj,iterations,use_default_centers=False):
-	if use_default_centers == False:
+
+
+
+""" requires Coords object with custer nuber set. chooses median as centroid and fallback
+kwargs:
+	iterations
+	use_default_centers
+	anim_obj
+"""
+def k_medians_fallback(data_obj,**kwargs):
+	if "use_default_centers" not in kwargs or kwargs["use_default_centers"] == False:
 		data_obj.c_positions=[]
 		data_obj.c_positions = random.sample(data_obj.coords,data_obj.c_number)
+
+	iterations  = 10
+	if "iterations" in kwargs:
+		iterations = kwargs["iterations"]
+
+	anim_obj = kwargs.get("anim_obj",None)
+	animated = False
+	if anim_obj!=None:
+		animated = True
+
 	for i in range(iterations):
 		data_obj.labels = []
 		for coord in data_obj.coords:
@@ -95,13 +150,32 @@ def k_medians_fallback(data_obj,iterations,use_default_centers=False):
 		#print(mini_c)
 		for index,val in enumerate(mini_c):
 			data_obj.c_positions[index] = median_centroid_rand(data_obj,val)
+		if animated:
+			anim_obj.add_step(data_obj)
 	return data_obj
 
-""" requires Coords object with custer nuber set. each iteration divides equally the set between cluster centers"""
-def k_means_balanced(data_obj,iterations,use_default_centers=False):
-	if use_default_centers == False:
+
+
+""" requires Coords object with custer nuber set. each iteration divides equally the set between cluster centers
+kwargs:
+	iterations
+	use_default_centers
+	anim_obj
+"""
+def k_means_balanced(data_obj,**kwargs):
+	if "use_default_centers" not in kwargs or kwargs["use_default_centers"] == False:
 		data_obj.c_positions=[]
 		data_obj.c_positions = random.sample(data_obj.coords,data_obj.c_number)
+
+	iterations  = 10
+	if "iterations" in kwargs:
+		iterations = kwargs["iterations"]
+
+	anim_obj = kwargs.get("anim_obj",None)
+	animated = False
+	if anim_obj!=None:
+		animated = True
+
 	num_per_cluster = math.floor(len(data_obj.coords)/len(data_obj.c_positions))
 	for i in range(iterations):
 		data_obj.labels = [0]*len(data_obj.coords)
@@ -121,28 +195,6 @@ def k_means_balanced(data_obj,iterations,use_default_centers=False):
 		#print(mini_c)
 		for index,val in enumerate(mini_c):
 			data_obj.c_positions[index] = centroid_rand(data_obj,val)
-	return data_obj
-
-
-
-#TEMPORARY TEST
-"""requirres Coords object with cluster number set. . As fallback it chooses random point instead of 0.0"""
-def k_means_animated(data_obj,iterations,anim_obj,use_default_centers=False):
-	if use_default_centers == False:
-		data_obj.c_positions=[]
-		data_obj.c_positions = random.sample(data_obj.coords,data_obj.c_number)
-	for i in range(iterations):
-		data_obj.labels = []
-		for coord in data_obj.coords:
-			distances = [[distance(coord,center),num] for num,center in enumerate(data_obj.c_positions)]
-			distances = sorted(distances,key=lambda x: x[0])
-			data_obj.labels.append(distances[0][1])
-		mini_c =[[] for i in data_obj.c_positions]
-		for num,val in enumerate(data_obj.labels):
-			mini_c[val].append(data_obj.coords[num])
-		#print(mini_c)
-		for index,val in enumerate(mini_c):
-			data_obj.c_positions[index] = centroid_rand(data_obj,val)
-		anim_obj.add_step(data_obj)
-	
+		if animated:
+			anim_obj.add_step(data_obj)
 	return data_obj

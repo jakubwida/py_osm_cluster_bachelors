@@ -30,7 +30,7 @@ coords = trivial_gen.balanced_multiple_gauss_blobs(10.0,3.0,20,5,0.5)
 anim_obj = anim.Animation("anim_1",True,True)
 
 newcoords = deepcopy(coords)
-newcoords = partitioning.k_means_animated(newcoords,10,anim_obj)
+newcoords = partitioning.k_medians_fallback(newcoords,iterations=5,use_default_centers=False,anim_obj=anim_obj)
 
 anim_obj.compile()
 

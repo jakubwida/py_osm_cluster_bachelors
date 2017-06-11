@@ -16,7 +16,7 @@ class Animation:
 		self.filenames = []
 		self.duration = frame_duration
 	def add_step(self,data_obj):
-		print("wat")
+		print("frame:"+str(self.step_count))
 		self.step_count = self.step_count +1
 		name = str(self.step_count)
 		self.filenames.append(name)
