@@ -45,6 +45,9 @@ kwargs:
 	iterations
 	use_default_centers
 	anim_obj
+data_obj:
+	coords
+	c_positions (optionally)
 """
 def k_means(data_obj,**kwargs):
 	if "use_default_centers" not in kwargs or kwargs["use_default_centers"] == False:
@@ -84,6 +87,9 @@ kwargs:
 	iterations
 	use_default_centers
 	anim_obj
+data_obj:
+	coords
+	c_positions (optionally)
 """
 def k_means_fallback(data_obj,**kwargs):
 	if "use_default_centers" not in kwargs or kwargs["use_default_centers"] == False:
@@ -123,6 +129,9 @@ kwargs:
 	iterations
 	use_default_centers
 	anim_obj
+data_obj:
+	coords
+	c_positions (optionally)
 """
 def k_medians_fallback(data_obj,**kwargs):
 	if "use_default_centers" not in kwargs or kwargs["use_default_centers"] == False:
@@ -161,6 +170,9 @@ kwargs:
 	iterations
 	use_default_centers
 	anim_obj
+data_obj:
+	coords
+	c_positions (optionally)
 """
 def k_means_balanced(data_obj,**kwargs):
 	if "use_default_centers" not in kwargs or kwargs["use_default_centers"] == False:

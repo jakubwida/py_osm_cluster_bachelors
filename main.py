@@ -24,13 +24,13 @@ coords.c_number=3
 coords.c_positions=[trivial_gen.gauss_point((0.0,0.0),50) for i in range(3)]
 """
 
-coords = trivial_gen.balanced_multiple_gauss_blobs(10.0,3.0,20,5,0.5)
+coords = trivial_gen.balanced_multiple_gauss_blobs(10.0,3.0,10,3,0.5)
 #coords = trivial_gen.croissants(30,5.0,0.5)
 
-anim_obj = anim.Animation("anim_1",True,True)
+anim_obj = anim.Animation("anim_1",True,True,0.1)
 
 newcoords = deepcopy(coords)
-newcoords = partitioning.k_medians_fallback(newcoords,iterations=5,use_default_centers=False,anim_obj=anim_obj)
+newcoords = hierarchical.divisive_k_means(newcoords,anim_obj=anim_obj)
 
 anim_obj.compile()
 

@@ -34,8 +34,21 @@ def combine_clusters(index_a,index_b,data_obj):
 			out.append(num)
 	return [set(i) for i in itertools.combinations(out,2)]
 
-""" requires Coords object with coordinates set, and target cluster number as a second argument. returns clustered (labelled) Coords object. Agglomerative bottom - up algorithm starting with each point as its own cluster. every itertation two points with shortest distances have their clusters combined., and all resulting internal distances form that connection are eliminated withinn storage. Algorithm is very slow"""
-def agglomerative_single_link(data_obj,target_c_num):
+""" requires Coords object with coordinates set, and target cluster number as a second argument. returns clustered (labelled) Coords object. Agglomerative bottom - up algorithm starting with each point as its own cluster. every itertation two points with shortest distances have their clusters combined., and all resulting internal distances form that connection are eliminated withinn storage.
+
+data_obj:
+	coords
+	c_number
+kwargs:
+	anim_obj
+"""
+def agglomerative_single_link(data_obj,**kwargs):
+
+	anim_obj = kwargs.get("anim_obj",None)
+	animated = False
+	if anim_obj!=None:
+		animated = True
+
 	c = [[i] for i in range(len(data_obj.coords))]
 	#dict of clusters, keys: int, first value used, val = indexes of points
 	clusters = {}
@@ -49,7 +62,7 @@ def agglomerative_single_link(data_obj,target_c_num):
 	for i in itertools.combinations(clusters.keys(),2):
 		distances[frozenset(i)]=geom.distance(data_obj.coords[i[0]],data_obj.coords[i[1]])
 
-	while len(clusters) > target_c_num:
+	while len(clusters) > data_obj.c_number:
 		# finding a set(c_index,c_index) where distance between indexes is minimal
 
 		min_c = list(min(distances,key=distances.get))
@@ -74,6 +87,13 @@ def agglomerative_single_link(data_obj,target_c_num):
 		for i in distance_hash_pairs:
 			distances[i[0]] = min((distances[i[0]],distances[i[1]]))
 			distances.pop(i[1],None)
+		#animation
+		if animated:
+			for key,val in clusters.items():
+				for i in val:
+					data_obj.labels[i]=key
+			anim_obj.add_step(data_obj)
+
 	for key,val in clusters.items():
 		for i in val:
 			data_obj.labels[i]=key
@@ -81,7 +101,13 @@ def agglomerative_single_link(data_obj,target_c_num):
 
 
 """ algorithm similar to the above one - with the diffenerence that distance between each clustre is determined by distance between two furthest points between the clusters. Uses simple implementation -generally optimall"""
-def agglomerative_complete_link(data_obj,target_c_num):
+def agglomerative_complete_link(data_obj,**kwargs):
+
+	anim_obj = kwargs.get("anim_obj",None)
+	animated = False
+	if anim_obj!=None:
+		animated = True
+
 	c = [[i] for i in range(len(data_obj.coords))]
 	#dict of clusters, keys: int, first value used, val = indexes of points
 	clusters = {}
@@ -95,7 +121,7 @@ def agglomerative_complete_link(data_obj,target_c_num):
 	for i in itertools.combinations(clusters.keys(),2):
 		distances[frozenset(i)]=geom.distance(data_obj.coords[i[0]],data_obj.coords[i[1]])
 
-	while len(clusters) > target_c_num:
+	while len(clusters) > data_obj.c_number:
 		# finding a set(c_index,c_index) where distance between indexes is minimal
 
 		min_c = list(min(distances,key=distances.get))
@@ -120,6 +146,13 @@ def agglomerative_complete_link(data_obj,target_c_num):
 		for i in distance_hash_pairs:
 			distances[i[0]] = max((distances[i[0]],distances[i[1]]))
 			distances.pop(i[1],None)
+		#animation
+		if animated:
+			for key,val in clusters.items():
+				for i in val:
+					data_obj.labels[i]=key
+			anim_obj.add_step(data_obj)
+
 	for key,val in clusters.items():
 		for i in val:
 			data_obj.labels[i]=key
@@ -157,8 +190,14 @@ def simplified_k_means(data_obj,indexes,iterations,cluster_num):
 				centers[num] = random.choice(data_obj.coords)
 	return subclusters
 
-def divisive_k_means(data_obj,level):
+def divisive_k_means(data_obj,**kwargs):
 
+	anim_obj = kwargs.get("anim_obj",None)
+	animated = False
+	if anim_obj!=None:
+		animated = True
+
+	level = kwargs.get("iterations",2)
 	length = len(data_obj.coords)
 	data_obj.labels=[0 for i in range(length)]
 	subclusters = [list(range(length))]
@@ -167,6 +206,11 @@ def divisive_k_means(data_obj,level):
 		for num,i in enumerate(subclusters):
 			subclusters[num] = simplified_k_means(data_obj,i,5,3)
 		subclusters = list(itertools.chain(*subclusters))
+		if animated:
+			for num,i in enumerate(subclusters):
+				for j in i:
+					data_obj.labels[j] = num
+			anim_obj.add_step(data_obj)
 	for num,i in enumerate(subclusters):
 		for j in i:
 			data_obj.labels[j] = num
