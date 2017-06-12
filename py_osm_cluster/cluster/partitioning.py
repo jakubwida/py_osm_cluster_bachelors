@@ -43,18 +43,22 @@ def _init_plus_plus(data_obj):
 	if remaining > 0:
 		remaining -=1
 		data_obj.c_positions.append(random.choice(data_obj.coords))
-	distances = [0 for i in data_obj.coords]
+	distances = [float("inf") for i in data_obj.coords]
 	while remaining > 0:
 		last_center = data_obj.c_positions[-1]
 		remaining -=1
 		for num,i in enumerate(distances):
 			current_coord = data_obj.coords[num]
-			#if current_coord not in data_obj.c_positions:
-			newdistance = append(geom.distance(math.pow(last_center,current_coord)))
-			distances[num] = [min([distances[num],newdistance])]
+			#print(last_center)
+			newdistance = math.pow(geom.distance(last_center,current_coord),2.0)
+			distances[num] = min([distances[num],newdistance])
+
 		sums = sum(distances)
-		distances = [i/suma for i in distances]
-		new_center = choice(data_obj.coords,1,p=distances)
+		distances = [i/sums for i in distances]
+
+		indexes = list(range(len(data_obj.coords)))
+		new_center = choice(indexes,1,p=distances)
+		new_center = data_obj.coords[new_center]
 		data_obj.c_positions.append(new_center)
 	#inicjalizacja:
 	#1 centrum jest losowo wybierane z punktów
