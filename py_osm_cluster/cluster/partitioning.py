@@ -1,212 +1,88 @@
 import math
 import random
 
-def distance(a,b):
-	return math.sqrt(math.pow(a[0]-b[0],2)+math.pow(a[1]-b[1],2))
-
-""" centroid with fallback 0.0,0.0 for coordinate set"""
-def centroid(coords):
-	num = len(coords)
-	if num == 0:
-		return [0.0,0.0]
-	lists = list(zip(*coords))
-
-	x = sum(lists[0])/num
-	y = sum(lists[1])/num
-	xy =(x,y)
-	return xy
-
-""" centroid with random coordinate as fallback"""
-def centroid_rand(data_obj,coords):
-	num = len(coords)
-	if num == 0:
-		return random.choice(data_obj.coords)
-	lists = list(zip(*coords))
-	x = sum(lists[0])/num
-	y = sum(lists[1])/num
-	xy =(x,y)
-	return xy
-
-
-""" medain centroid with radnom fallback"""
-def median_centroid_rand(data_obj,coords):
-	num = len(coords)
-	if num == 0:
-		return random.choice(data_obj.coords)
-	return coords[math.floor(num/2.0)]
 
 
 
+import py_osm_cluster.util.geom as geom
+""" a k_means utility functions. assigns Coords.labels of Coords.coords to nearest Coords.c_positions in given data_obj (Coords)"""
+def _reassign_to_cluster_centers(data_obj):
+	for num,i in enumerate(data_obj.coords):
+		distances = [geom.distance(i,c) for c in data_obj.c_positions]
+		mindist = min(distances)
+		data_obj.labels[num] = distances.index(mindist)
 
-#actual clustering
+""" sets Coords.c_positions (data_obj) to means of clusters, as each cluster is represented by subset of Coords.coords with distinct Coords.labels on the same index """
+def _move_centers_to_centroids(data_obj):
 
-"""requires Coords object with cluster number  fallback centroid is at 0.0 (when one centroid has no closest points compared to others)
+	center_sums = [[0.0,0.0] for i in range(data_obj.c_number)]
+	num_in_clusters =[0 for i in range(data_obj.c_number)]
+	data_obj.c_positions =[None for i in range(data_obj.c_number)]
+	for num,i in enumerate(data_obj.labels):
+		center_sums[i] = [center_sums[i][j] + data_obj.coords[num][j] for j in range(2)]
+		num_in_clusters[i] += 1
+	for num,i in enumerate(center_sums):
+		val = [i[j]/num_in_clusters[num] for j in range(2)]
+		data_obj.c_positions[num] = val
+
+""" requires data_obj with c_number set. picks random points."""
+def _init_forgy(data_obj):
+	data_obj.c_positions = random.sample(data_obj.coords,data_obj.c_number)
+
+""" requires data_obj with c_number set. makes clusters form random points, and updates centroids. CHANGES data_obj.labels"""
+def _init_random_partitions(data_obj):
+	possibles = list(range(data_obj.c_number))
+	data_obj.labels = [random.choice(possibles) for i in data_obj.labels]
+	move_centers_to_centroids(data_obj)
+
+from numpy.random import choice
+""" requires data_obj with c_number set. makes clusters form random points, and updates centroids. CHANGES data_obj.labels"""
+def _init_plus_plus(data_obj):
+	data_obj.c_positions =[]
+	remaining = data_obj.c_number
+	if remaining > 0:
+		remaining -=1
+		data_obj.c_positions.append(random.choice(data_obj.coords))
+	distances = [0 for i in data_obj.coords]
+	while remaining > 0:
+		last_center = data_obj.c_positions[-1]
+		remaining -=1
+		for num,i in enumerate(distances):
+			current_coord = data_obj.coords[num]
+			#if current_coord not in data_obj.c_positions:
+			newdistance = append(geom.distance(math.pow(last_center,current_coord)))
+			distances[num] = [min([distances[num],newdistance])]
+		sums = sum(distances)
+		distances = [i/suma for i in distances]
+		new_center = choice(data_obj.coords,1,p=distances)
+		data_obj.c_positions.append(new_center)
+	#inicjalizacja:
+	#1 centrum jest losowo wybierane z punktów
+	# robimy tablice dystansów^2 dla kazdegu punktu do centrum
+	# 2 cntrum jest wybierane z punktów proporcjonalneie do ich dystansu^2 do 1. (Dpunkt^2/suma(Dwszystkie_punkty2))
+	# kazde nastepne centrum jest wybierane proporcjonalnie do minimum dystansow z danego punktu
+
+""" does nothing"""
+def _init_default_pos(data_obj):pass
+
+import copy as copy
+""" performs k_means. Non destructive
+data_obj = Coords object. must have Coords.c_number set. Coords.c_positions optional
 kwargs:
-	iterations
-	use_default_centers
-	anim_obj
-data_obj:
-	coords
-	c_positions (optionally)
+	iterations =int, default 5, number of iterations
+	on_step = function(data_obj), default None. runs given function every step
+	initialisation = string, one of : "forgy" "random_partitions" "kmeans_++" "default_pos", default = "forgy"
 """
 def k_means(data_obj,**kwargs):
-	if "use_default_centers" not in kwargs or kwargs["use_default_centers"] == False:
-		data_obj.c_positions=[]
-		data_obj.c_positions = random.sample(data_obj.coords,data_obj.c_number)
-
-	iterations  = 10
-	if "iterations" in kwargs:
-		iterations = kwargs["iterations"]
-
-	anim_obj = kwargs.get("anim_obj",None)
-	animated = False
-	if anim_obj!=None:
-		animated = True
-
+	data_obj = copy.deepcopy(data_obj)
+	on_step = kwargs.get("on_step",None)
+	iterations = kwargs.get("iterations",5)
+	initialisation = kwargs.get("initialisation","forgy")
+	init_dict = {"forgy":_init_forgy,"random_partitions":_init_random_partitions,"kmeans_++":_init_plus_plus,"default_pos":_init_default_pos}
+	init_dict[initialisation](data_obj)
 	for i in range(iterations):
-		data_obj.labels = []
-		for coord in data_obj.coords:
-			distances = [[distance(coord,center),num] for num,center in enumerate(data_obj.c_positions)]
-			distances = sorted(distances,key=lambda x: x[0])
-			data_obj.labels.append(distances[0][1])
-		mini_c =[[] for i in data_obj.c_positions]
-		for num,val in enumerate(data_obj.labels):
-			mini_c[val].append(data_obj.coords[num])
-		#print(mini_c)
-		for index,val in enumerate(mini_c):
-			data_obj.c_positions[index] = centroid(val)
-		if animated:
-			anim_obj.add_step(data_obj)
-	return data_obj
-
-
-
-
-"""requirres Coords object with cluster number set. . As fallback it chooses random point instead of 0.0
-kwargs:
-	iterations
-	use_default_centers
-	anim_obj
-data_obj:
-	coords
-	c_positions (optionally)
-"""
-def k_means_fallback(data_obj,**kwargs):
-	if "use_default_centers" not in kwargs or kwargs["use_default_centers"] == False:
-		data_obj.c_positions=[]
-		data_obj.c_positions = random.sample(data_obj.coords,data_obj.c_number)
-
-	iterations  = 10
-	if "iterations" in kwargs:
-		iterations = kwargs["iterations"]
-
-	anim_obj = kwargs.get("anim_obj",None)
-	animated = False
-	if anim_obj!=None:
-		animated = True
-
-	for i in range(iterations):
-		data_obj.labels = []
-		for coord in data_obj.coords:
-			distances = [[distance(coord,center),num] for num,center in enumerate(data_obj.c_positions)]
-			distances = sorted(distances,key=lambda x: x[0])
-			data_obj.labels.append(distances[0][1])
-		mini_c =[[] for i in data_obj.c_positions]
-		for num,val in enumerate(data_obj.labels):
-			mini_c[val].append(data_obj.coords[num])
-		#print(mini_c)
-		for index,val in enumerate(mini_c):
-			data_obj.c_positions[index] = centroid_rand(data_obj,val)
-		if animated:
-			anim_obj.add_step(data_obj)
-	return data_obj
-
-
-
-
-""" requires Coords object with custer nuber set. chooses median as centroid and fallback
-kwargs:
-	iterations
-	use_default_centers
-	anim_obj
-data_obj:
-	coords
-	c_positions (optionally)
-"""
-def k_medians_fallback(data_obj,**kwargs):
-	if "use_default_centers" not in kwargs or kwargs["use_default_centers"] == False:
-		data_obj.c_positions=[]
-		data_obj.c_positions = random.sample(data_obj.coords,data_obj.c_number)
-
-	iterations  = 10
-	if "iterations" in kwargs:
-		iterations = kwargs["iterations"]
-
-	anim_obj = kwargs.get("anim_obj",None)
-	animated = False
-	if anim_obj!=None:
-		animated = True
-
-	for i in range(iterations):
-		data_obj.labels = []
-		for coord in data_obj.coords:
-			distances = [[distance(coord,center),num] for num,center in enumerate(data_obj.c_positions)]
-			distances = sorted(distances,key=lambda x: x[0])
-			data_obj.labels.append(distances[0][1])
-		mini_c =[[] for i in data_obj.c_positions]
-		for num,val in enumerate(data_obj.labels):
-			mini_c[val].append(data_obj.coords[num])
-		#print(mini_c)
-		for index,val in enumerate(mini_c):
-			data_obj.c_positions[index] = median_centroid_rand(data_obj,val)
-		if animated:
-			anim_obj.add_step(data_obj)
-	return data_obj
-
-
-
-""" requires Coords object with custer nuber set. each iteration divides equally the set between cluster centers
-kwargs:
-	iterations
-	use_default_centers
-	anim_obj
-data_obj:
-	coords
-	c_positions (optionally)
-"""
-def k_means_balanced(data_obj,**kwargs):
-	if "use_default_centers" not in kwargs or kwargs["use_default_centers"] == False:
-		data_obj.c_positions=[]
-		data_obj.c_positions = random.sample(data_obj.coords,data_obj.c_number)
-
-	iterations  = 10
-	if "iterations" in kwargs:
-		iterations = kwargs["iterations"]
-
-	anim_obj = kwargs.get("anim_obj",None)
-	animated = False
-	if anim_obj!=None:
-		animated = True
-
-	num_per_cluster = math.floor(len(data_obj.coords)/len(data_obj.c_positions))
-	for i in range(iterations):
-		data_obj.labels = [0]*len(data_obj.coords)
-
-		distances = []
-		for num,j in enumerate(data_obj.coords):
-			distances.append(([distance(j,center) for center in data_obj.c_positions],num))
-		distances = sorted(distances,key = lambda x: min(x[0]) )
-		for j in range(data_obj.c_number):
-			for k in range(num_per_cluster):
-				current_d  = distances[j*k]
-				data_obj.labels[current_d[1]]=current_d[0].index(min(current_d[0]))
-
-		mini_c =[[] for i in data_obj.c_positions]
-		for num,val in enumerate(data_obj.labels):
-			mini_c[val].append(data_obj.coords[num])
-		#print(mini_c)
-		for index,val in enumerate(mini_c):
-			data_obj.c_positions[index] = centroid_rand(data_obj,val)
-		if animated:
-			anim_obj.add_step(data_obj)
+		_reassign_to_cluster_centers(data_obj)
+		_move_centers_to_centroids(data_obj)
+		if on_step !=None:
+			on_step(data_obj)
 	return data_obj

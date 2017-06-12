@@ -1,14 +1,9 @@
-Generalny zbiór rzeczy które trzeba uzyskać:
-1. wrzucić całą tę hałastrę na github
-2. dokładnie przeczytać o algorytmach takich jak k-means itp
-3. dodać jeszcze tak z 5-10 algorytmów. mogą być to odmiany już stosowanych
-4. dobrze opisać to wszystko
-5. dodać funkcje testujące te rzeczy (w sensie gwarantujące spójność)
-6. dodać funkcję ogólnej ewaluacji na wielu przykładach - tj wykres porównania tych wszystkich współczynników dla testów na różnych klastrach
-7. napisać to wszystko
-8. najlepiej dowiedzić się czy mogę to zrobić do końca czerwca bo inaczej nie wygląda żebym zdążył
+1. przekabać k_means na lepszą postać:
+	- z uniwersalnym parameterm on_step = funkcje(data_obj),
+	- współpracująca z utilową geometrią
+	- z "prywatnymi" funkcjami w module
+	- rozdzieloną na funkcje inicjalizujące centra , wybierane w parametrze (Forgy, k_means++ etc)
+	- zrobić kilka wersji k_means: k_medioids, bisecting_k_means etc.
 
-
-To co trzeba zrobić w najbliższym czasie:
-	- napisać klasę GeneralEvaluator która używa Lineplot z visualistion żeby wykreślać zminaę różnych parametrów klastrowania dla różnych funkcji/danych
-	- przekabacić funkcje klastrowania tak żeby miały standarrdowy input, i żeby dały się animować
+2. zrobić testy k_means
+3. opisać k_means 
