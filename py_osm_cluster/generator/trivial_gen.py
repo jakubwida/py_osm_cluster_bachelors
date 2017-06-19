@@ -10,6 +10,9 @@ def distance(a,b):
 def gauss_point(coords,sigma):
 	return [random.gauss(0,sigma)+coords[x] for x in range(2)]
 
+def weighted_gauss_point(coords,sigmas):
+	return [random.gauss(0,x)+coords[num] for num,x in enumerate(sigmas)]
+
 def linear_square_point(coords,side):
 	return [random.uniform(coords[x]-side/2.0,coords[x]+side/2.0) for x in range(2)]
 
@@ -59,6 +62,12 @@ def gauss_blob(coords,sigma,number):
 	out =[]
 	for i in range(number):
 		out.append(gauss_point(coords,sigma))
+	return out
+
+def weighted_gauss_blob(coords,sigmas,number):
+	out =[]
+	for i in range(number):
+		out.append(weighted_gauss_point(coords,sigmas))
 	return out
 
 def gauss_segment(coords_1,coords_2,sigma,number):
@@ -112,6 +121,18 @@ def multiple_gauss_blobs(field_size,n_in_blob,n_of_blobs,sigma):
 		data_obj.labels = data_obj.labels + [num for j in range(n_in_blob)]
 	return data_obj
 
+def multiple_weighted_gauss_blobs(field_size,n_in_blob,n_of_blobs,sigmas):
+	data_obj =C()
+	data_obj.c_number = n_of_blobs
+	for i in range(n_of_blobs):
+		data_obj.c_positions.append([random.uniform(0.0,field_size) for i in range(2)])
+	for num,val in enumerate(data_obj.c_positions):
+		gb = weighted_gauss_blob(val,sigmas,n_in_blob)
+		data_obj.coords = data_obj.coords + gb
+		data_obj.labels = data_obj.labels + [num for j in range(n_in_blob)]
+	return data_obj
+
+
 #Warning! not always possible, may loop
 def balanced_multiple_gauss_blobs(field_size,min_distance_between_centers,n_in_blob,n_of_blobs,sigma):
 	data_obj = C()
@@ -132,6 +153,25 @@ def balanced_multiple_gauss_blobs(field_size,min_distance_between_centers,n_in_b
 		data_obj.labels = data_obj.labels + [num for j in range(n_in_blob)]
 	return data_obj
 
+#Warning! not always possible, may loop
+def balanced_multiple_weighted_gauss_blobs(field_size,min_distances_between_centers,n_in_blob,n_of_blobs,sigmas):
+	data_obj = C()
+	data_obj.c_number = n_of_blobs
+	data_obj.c_positions.append([random.uniform(0.0,field_size) for i in range(2)])
+	while len(data_obj.c_positions) < data_obj.c_number:
+		newpos = [random.uniform(0.0,field_size) for i in range(2)]
+		insert = True
+		for i in data_obj.c_positions:
+			if math.fabs(i[0]-newpos[0]) < min_distances_between_centers[0] or math.fabs(i[1]-newpos[1]) < min_distances_between_centers[1]:
+				insert = False
+				break
+		if insert:
+			data_obj.c_positions.append(newpos)
+	for num,val in enumerate(data_obj.c_positions):
+		gb = weighted_gauss_blob(val,sigmas,n_in_blob)
+		data_obj.coords = data_obj.coords + gb
+		data_obj.labels = data_obj.labels + [num for j in range(n_in_blob)]
+	return data_obj
 
 def gauss_circle_in_other(outer_radius,p_in_central,p_in_outer,sigma_in,sigma_out):
 	data_obj = C()

@@ -1,5 +1,7 @@
 import sklearn.metrics as metrics
 
+
+""" adjusted rand index - measures similarity between two clusterings"""
 def scikit_rand_index(data_obj,model_obj):
 	return metrics.adjusted_rand_score(model_obj.labels,data_obj.labels)
 

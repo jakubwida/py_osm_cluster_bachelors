@@ -1,9 +1,15 @@
-1. przekabać k_means na lepszą postać:
-	- z uniwersalnym parameterm on_step = funkcje(data_obj),
-	- współpracująca z utilową geometrią
-	- z "prywatnymi" funkcjami w module
-	- rozdzieloną na funkcje inicjalizujące centra , wybierane w parametrze (Forgy, k_means++ etc)
-	- zrobić kilka wersji k_means: k_medioids, bisecting_k_means etc.
+1. przejrzec i opisac funkcje porownujace/abadajace
+2. zrobić generator trudniejszych danych (np siatka)
+3. zbadać k_means
+4. opisać k_means
 
-2. zrobić testy k_means
-3. opisać k_means 
+
+Ogólny plan pracy licencjackiej:
+
+1. wstęp: o zastosowaniu klastrowania i jego znaczeniu w data science
+2. opis metod badawczych (rand index etc - powiedz że je zajumałeś z biblioteki scikit)
+3. analiza i opis algorytmu k_means
+4. analiza i opis algorytmów hierarchicznych
+5. analiza algorytmów pośrednich itp
+6. podsumowanie (że algorytm a jest lepszy bo etc)
+7. aplikacja do życia rzeczywistego - openstreetmap
