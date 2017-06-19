@@ -1,5 +1,7 @@
 import random
 import math
+import py_osm_cluster.util.geom as geom
+
 
 #util below
 def distance(a,b):
@@ -20,10 +22,10 @@ def linear_circle_point(coords,radius):
 	while True:
 		x = random.uniform(-radius,radius)
 		y = random.uniform(-radius,radius)
-		if math.sqrt(math.pow(x,2)+math.pow(y,2))<=radius:
+		if geom.distance((0.0,0.0),(x,y))<radius:
 			#print(math.sqrt(math.pow(x-coords[0],2)+math.pow(x-coords[0],2)))
 			break
-	return (x-coords[0],y-coords[1])
+	return (x+coords[0],y+coords[1])
 
 #below: helper functions generating linear list of points
 
@@ -108,6 +110,25 @@ def linear_imperfect_arc(coords,radius,thickness,angle_1,angle_2,number):
 
 #generators returning Coord objects
 from py_osm_cluster.util.coords import Coords as C
+
+def balanced_multiple_linear_circles(field_size,min_distance_between_centers,n_in_blob,n_of_blobs,radius):
+	data_obj = C()
+	data_obj.c_number = n_of_blobs
+	data_obj.c_positions.append([random.uniform(0.0,field_size) for i in range(2)])
+	while len(data_obj.c_positions) < data_obj.c_number:
+		newpos = [random.uniform(0.0,field_size) for i in range(2)]
+		insert = True
+		for i in data_obj.c_positions:
+			if distance(i,newpos) < min_distance_between_centers:
+				insert = False
+				break
+		if insert:
+			data_obj.c_positions.append(newpos)
+	for num,val in enumerate(data_obj.c_positions):
+		gb = linear_circle(val,radius,n_in_blob)
+		data_obj.coords = data_obj.coords + gb
+		data_obj.labels = data_obj.labels + [num for j in range(n_in_blob)]
+	return data_obj
 
 #generates gauss blobs given possible area (field size 0,0 to fs,fs), number of blobs and number of items per blob
 def multiple_gauss_blobs(field_size,n_in_blob,n_of_blobs,sigma):
