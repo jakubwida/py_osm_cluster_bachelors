@@ -207,3 +207,14 @@ class Coords:
 		for element in self.c_positions:
 			out = out + str(element[0])+' '+str(element[1])+'\n'
 		return out
+
+	""" returns a dictionary where keys = label values, values = lists of coords under these labels"""
+	def clusters_into_lists_dict(self):
+		out = {}
+		for num,i in enumerate(self.coords):
+			label = self.labels[num]
+			if label in out:
+				out[label].append(i)
+			else:
+				out[label] = [i]
+		return out

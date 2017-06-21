@@ -32,7 +32,8 @@ def pront(data_obj):
 	print("hello")
 	print(data_obj.c_positions)
 newcoords = deepcopy(coords)
-newcoords = partitioning.k_means(newcoords,on_step=anim_obj.add_step,initialisation="kmeans_++")
+newcoords = partitioning.k_means(newcoords,on_step=anim_obj.add_step,initialisation="forgy")
+
 
 anim_obj.compile()
 
