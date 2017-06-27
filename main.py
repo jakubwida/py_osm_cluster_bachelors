@@ -24,6 +24,7 @@ coords.c_number=3
 coords.c_positions=[trivial_gen.gauss_point((0.0,0.0),50) for i in range(3)]
 """
 
+"""
 coords = trivial_gen.balanced_multiple_gauss_blobs(10.0,3.0,20,5,0.5)
 #coords = trivial_gen.croissants(30,5.0,0.5)
 
@@ -45,4 +46,12 @@ anim_obj.compile()
 
 visu.plot_coords_label_color(newcoords)
 visu.plot_centers_by_label_color(newcoords)
+plt.show()
+"""
+
+coords = trivial_gen.balanced_multiple_weighted_gauss_blobs(10.0,[1.0,0.5],20,5,[1.5,0.5])
+#print(coords)
+
+visu.plot_coords_label_color(coords)
+visu.plot_centers_by_label_color(coords)
 plt.show()

@@ -1,7 +1,7 @@
 import random
 import math
 import py_osm_cluster.util.geom as geom
-
+from py_osm_cluster.util.coords import Coords as C
 
 #util below
 def distance(a,b):
@@ -56,7 +56,42 @@ def arc_linear_division(coords,radius,angle_1,angle_2,number):
 		out.append(xy)
 	return out
 
+""" returns Coords object, with c_number and c_positions set, requires field size, min_distance and number of clusters"""
+def _balanced_centers(field_size,dist_function,dist_function_params,num_of_clusters):
+	data_obj = C()
+	data_obj.c_number = num_of_clusters
+	counter = 0
+	passes = False
+	while not passes:
+		print("trying")
+		data_obj.c_positions = [linear_square_point([field_size/2.0 for x in [0,1]],field_size)]
+		while (not passes) and counter < 100*data_obj.c_number:
+			newobj = linear_square_point([field_size/2.0 for x in [0,1]],field_size)
+			temp_passes = True
+			for i in data_obj.c_positions:
+				if not dist_function(i,newobj,dist_function_params) and geom.distance(i,newobj) > 0 :
+					temp_passes = False
+					break
+			if temp_passes:
+				data_obj.c_positions.append(newobj)
 
+			counter += 1
+			passes = (len(data_obj.c_positions)==data_obj.c_number)
+	return data_obj
+
+def _euclidean_balanced(a,b,min_length):
+	return geom.distance(a,b) > min_length
+
+def _weighted_balanced(a,b,min_lengths):
+	arr = [math.fabs(a[i]-b[i])for i in (0,1)]
+	return arr[0]>min_lengths[0] and arr[1]>min_lengths[1]
+
+
+def generate_balanced_centers(field_size,min_distance,num_of_clusters):
+	return _balanced_centers(field_size,_euclidean_balanced,min_distance,num_of_clusters)
+
+def generate_weighted_balanced_centers(field_size,min_distances,num_of_clusters):
+	return _balanced_centers(field_size,_weighted_balanced,min_distances,num_of_clusters)
 #below: functions generating multiple points
 
 """ sigma = variance (0.1 = centered, 5= over large area )"""
@@ -109,21 +144,10 @@ def linear_imperfect_arc(coords,radius,thickness,angle_1,angle_2,number):
 
 
 #generators returning Coord objects
-from py_osm_cluster.util.coords import Coords as C
+
 
 def balanced_multiple_linear_circles(field_size,min_distance_between_centers,n_in_blob,n_of_blobs,radius):
-	data_obj = C()
-	data_obj.c_number = n_of_blobs
-	data_obj.c_positions.append([random.uniform(0.0,field_size) for i in range(2)])
-	while len(data_obj.c_positions) < data_obj.c_number:
-		newpos = [random.uniform(0.0,field_size) for i in range(2)]
-		insert = True
-		for i in data_obj.c_positions:
-			if distance(i,newpos) < min_distance_between_centers:
-				insert = False
-				break
-		if insert:
-			data_obj.c_positions.append(newpos)
+	data_obj = generate_balanced_centers(field_size,min_distance_between_centers,n_of_blobs)
 	for num,val in enumerate(data_obj.c_positions):
 		gb = linear_circle(val,radius,n_in_blob)
 		data_obj.coords = data_obj.coords + gb
@@ -156,18 +180,7 @@ def multiple_weighted_gauss_blobs(field_size,n_in_blob,n_of_blobs,sigmas):
 
 #Warning! not always possible, may loop
 def balanced_multiple_gauss_blobs(field_size,min_distance_between_centers,n_in_blob,n_of_blobs,sigma):
-	data_obj = C()
-	data_obj.c_number = n_of_blobs
-	data_obj.c_positions.append([random.uniform(0.0,field_size) for i in range(2)])
-	while len(data_obj.c_positions) < data_obj.c_number:
-		newpos = [random.uniform(0.0,field_size) for i in range(2)]
-		insert = True
-		for i in data_obj.c_positions:
-			if distance(i,newpos) < min_distance_between_centers:
-				insert = False
-				break
-		if insert:
-			data_obj.c_positions.append(newpos)
+	data_obj = generate_balanced_centers(field_size,min_distance_between_centers,n_of_blobs)
 	for num,val in enumerate(data_obj.c_positions):
 		gb = gauss_blob(val,sigma,n_in_blob)
 		data_obj.coords = data_obj.coords + gb
@@ -181,18 +194,7 @@ def _integers_summing(num, sum):
 
 #Warning! not always possible, may loop
 def balanced_random_size_gauss_blobs(field_size,min_distance_between_centers,min_in_blob,total_points,n_of_blobs,sigma):
-	data_obj = C()
-	data_obj.c_number = n_of_blobs
-	data_obj.c_positions.append([random.uniform(0.0,field_size) for i in range(2)])
-	while len(data_obj.c_positions) < data_obj.c_number:
-		newpos = [random.uniform(0.0,field_size) for i in range(2)]
-		insert = True
-		for i in data_obj.c_positions:
-			if distance(i,newpos) < min_distance_between_centers:
-				insert = False
-				break
-		if insert:
-			data_obj.c_positions.append(newpos)
+	data_obj = generate_balanced_centers(field_size,min_distance_between_centers,n_of_blobs)
 	for num,val in enumerate(data_obj.c_positions):
 		gb = gauss_blob(val,sigma,min_in_blob)
 		data_obj.coords = data_obj.coords + gb
@@ -211,18 +213,7 @@ def balanced_random_size_gauss_blobs(field_size,min_distance_between_centers,min
 
 #Warning! not always possible, may loop
 def balanced_multiple_weighted_gauss_blobs(field_size,min_distances_between_centers,n_in_blob,n_of_blobs,sigmas):
-	data_obj = C()
-	data_obj.c_number = n_of_blobs
-	data_obj.c_positions.append([random.uniform(0.0,field_size) for i in range(2)])
-	while len(data_obj.c_positions) < data_obj.c_number:
-		newpos = [random.uniform(0.0,field_size) for i in range(2)]
-		insert = True
-		for i in data_obj.c_positions:
-			if math.fabs(i[0]-newpos[0]) < min_distances_between_centers[0] or math.fabs(i[1]-newpos[1]) < min_distances_between_centers[1]:
-				insert = False
-				break
-		if insert:
-			data_obj.c_positions.append(newpos)
+	data_obj = generate_weighted_balanced_centers(field_size,min_distances_between_centers,n_of_blobs)
 	for num,val in enumerate(data_obj.c_positions):
 		gb = weighted_gauss_blob(val,sigmas,n_in_blob)
 		data_obj.coords = data_obj.coords + gb
