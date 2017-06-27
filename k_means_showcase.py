@@ -13,11 +13,13 @@ from py_osm_cluster.eval import comparative as comparative
 from py_osm_cluster.eval import standalone as standalone
 from py_osm_cluster.eval import summary as summary
 from py_osm_cluster.cluster import hierarchical
+from py_osm_cluster.util import statistic
 
 import py_osm_cluster.visualisation.visualisation as visu
 import py_osm_cluster.visualisation.animation as anim
 import matplotlib.pyplot as plt
 
+from copy import deepcopy
 
 def generate_test_datasets():
 	location = "k_means_data"
@@ -79,5 +81,25 @@ def sample_process():
 	#visu.plot_centers_by_label_color(data_obj)
 	#plt.show()
 #sample_process()
+
+
 gt = summary.GeneralTest()
-gt.execute("k_means_data/balanced_gauss")
+#print(gt.test_data_object("k_means_data/balanced_gauss/data0",5,partitioning.k_means,{}))
+#gt.execute("k_means_data/balanced_gauss")
+summary.test_multiple_datasets("k_means_data")
+"""
+indexes =[]
+for k in range(100):
+	data_obj = trivial_gen.balanced_multiple_gauss_blobs(10.0,2.0,20,5,1.0)
+	index = []
+	def harvest_index(input_obj):
+		global data_obj
+		index.append(comparative.scikit_rand_index(input_obj,data_obj))
+	new_obj = deepcopy(data_obj)
+	new_obj = partitioning.k_means(new_obj,on_step=harvest_index)
+	indexes.append(index)
+indexes = list(zip(*indexes))
+indexes = [statistic.avg(i) for i in indexes ]
+visu.lineplot(indexes,"what")
+plt.show()
+"""

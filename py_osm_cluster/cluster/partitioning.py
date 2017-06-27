@@ -15,7 +15,7 @@ def _reassign_to_cluster_centers(data_obj):
 """ sets Coords.c_positions (data_obj) to means of clusters, as each cluster is represented by subset of Coords.coords with distinct Coords.labels on the same index """
 def _move_centers_to_centroids(data_obj):
 
-	center_sums = [[0.0,0.0] for i in range(data_obj.c_number)]
+	center_sums = [[0.00000000001,0.00000000001] for i in range(data_obj.c_number)]
 	num_in_clusters =[0 for i in range(data_obj.c_number)]
 	data_obj.c_positions =[None for i in range(data_obj.c_number)]
 	for num,i in enumerate(data_obj.labels):

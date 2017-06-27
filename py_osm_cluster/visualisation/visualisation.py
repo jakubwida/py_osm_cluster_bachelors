@@ -57,7 +57,5 @@ def plot_centers_by_label_color(data_obj):
 	for num,val in enumerate(data_obj.c_positions):
 		plt.plot(val[0],val[1],get_color_shape(num),markersize=10)
 
-def lineplot(datasets,labels):
-	for num,i in datasets:
-		plt.plot(dataset,label=labels[num])
-	
+def lineplot(dataset,labels):
+		plt.plot(dataset,label=labels)
