@@ -174,6 +174,41 @@ def balanced_multiple_gauss_blobs(field_size,min_distance_between_centers,n_in_b
 		data_obj.labels = data_obj.labels + [num for j in range(n_in_blob)]
 	return data_obj
 
+""" generates num integers that sum up to given number"""
+def _integers_summing(num, sum):
+    dividers = sorted(random.sample(list(range(1, sum)), num - 1))
+    return [a - b for a, b in zip(dividers + [sum], [0] + dividers)]
+
+#Warning! not always possible, may loop
+def balanced_random_size_gauss_blobs(field_size,min_distance_between_centers,min_in_blob,total_points,n_of_blobs,sigma):
+	data_obj = C()
+	data_obj.c_number = n_of_blobs
+	data_obj.c_positions.append([random.uniform(0.0,field_size) for i in range(2)])
+	while len(data_obj.c_positions) < data_obj.c_number:
+		newpos = [random.uniform(0.0,field_size) for i in range(2)]
+		insert = True
+		for i in data_obj.c_positions:
+			if distance(i,newpos) < min_distance_between_centers:
+				insert = False
+				break
+		if insert:
+			data_obj.c_positions.append(newpos)
+	for num,val in enumerate(data_obj.c_positions):
+		gb = gauss_blob(val,sigma,min_in_blob)
+		data_obj.coords = data_obj.coords + gb
+		data_obj.labels = data_obj.labels + [num for j in range(min_in_blob)]
+	sum_no_min = total_points - (n_of_blobs*min_in_blob)
+	points_to_add = _integers_summing(n_of_blobs, sum_no_min)
+	#print(points_to_add)
+	for num,i in enumerate(points_to_add):
+		gb = gauss_blob(data_obj.c_positions[num],sigma,i)
+		data_obj.coords = data_obj.coords + gb
+		data_obj.labels = data_obj.labels + [num for j in range(i)]
+	#print(len(data_obj.coords))
+	return data_obj
+
+
+
 #Warning! not always possible, may loop
 def balanced_multiple_weighted_gauss_blobs(field_size,min_distances_between_centers,n_in_blob,n_of_blobs,sigmas):
 	data_obj = C()

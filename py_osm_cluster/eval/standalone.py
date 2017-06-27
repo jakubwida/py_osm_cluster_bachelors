@@ -192,3 +192,11 @@ def general_evaluate_clustered_object(data_obj):
 	# average/min/max/stdev cluster size
 	# average/min/max/stdev distance from centroid withn clusters
 	# average/min/max/stdev distance between all centroids
+
+
+def standard_scores_dict(data_obj):
+	out ={}
+	out["silhouette_score"]=scikit_silhouette_score(data_obj)
+	out["dunn_index"]=dunn_index(data_obj)
+	out["scikit_calinski_harabaz_score"] =scikit_calinski_harabaz_score(data_obj)
+	return out

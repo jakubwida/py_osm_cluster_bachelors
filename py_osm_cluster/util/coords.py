@@ -179,7 +179,7 @@ class Coords:
 		mode = None
 		for line in f:
 			line = line.strip("\n")
-			print(repr(line))
+			#print(repr(line))
 			if line in modes:
 				mode = line
 			else:
