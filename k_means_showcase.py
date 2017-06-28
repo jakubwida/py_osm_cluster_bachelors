@@ -86,7 +86,8 @@ def sample_process():
 gt = summary.GeneralTest()
 #print(gt.test_data_object("k_means_data/balanced_gauss/data0",5,partitioning.k_means,{}))
 #gt.execute("k_means_data/balanced_gauss")
-summary.test_multiple_datasets("k_means_data")
+
+#summary.test_multiple_datasets("k_means_data",30,partitioning.k_means,{"iterations":15})
 """
 indexes =[]
 for k in range(100):
@@ -103,3 +104,52 @@ indexes = [statistic.avg(i) for i in indexes ]
 visu.lineplot(indexes,"what")
 plt.show()
 """
+
+def test_on_random_sized():
+	data_obj = trivial_gen.balanced_random_size_gauss_blobs(10.0,2.0,5,100,5,0.5)
+	data_obj = partitioning.k_means(data_obj)
+	visu.plot_coords_label_color(data_obj)
+	visu.plot_centers_by_label_color(data_obj)
+	plt.show()
+#test_on_random_sized()
+
+#rand_test_data = trivial_gen.balanced_multiple_gauss_blobs(10.0,2.0,20,5,0.5)
+
+#visu.plot_coords_label_color(rand_test_data)
+#plt.show()
+def test_rand_indexes_on_single_data(rand_test_data,initialisation,marker):
+	rand_indexes =[]
+	for i in range(100):
+		data_obj = deepcopy(rand_test_data)
+		uncaught = True
+		while uncaught:
+			try:
+				data_obj = partitioning.k_means(data_obj,initialisation = initialisation,iterations=10)
+				rand_indexes.append(comparative.scikit_rand_index(data_obj,rand_test_data))
+				uncaught = False
+			except ZeroDivisionError:
+				uncaught =True
+	rand_indexes.sort()
+	plt.plot(list(range(100)),rand_indexes,marker,label=initialisation)
+
+
+def test_init_methods():
+	rand_test_data = trivial_gen.balanced_random_size_gauss_blobs(10.0,2.0,2,100,5,0.5)
+	test_rand_indexes_on_single_data(rand_test_data,"forgy","r-")
+	test_rand_indexes_on_single_data(rand_test_data,"random_partitions","b-")
+	test_rand_indexes_on_single_data(rand_test_data,"kmeans_++","g-")
+	plt.legend(loc="lower right")
+	plt.ylabel("Rand index value")
+	plt.show()
+	plt.savefig("initialisations.png")
+
+def croissants():
+	data =trivial_gen.croissants(100,5.0,0.5)
+	visu.plot_coords_label_color(data)
+	visu.plot_centers_by_label_color(data)
+	plt.show()
+	data =partitioning.k_means(data,initialisation="kmeans_++")
+	visu.plot_coords_label_color(data)
+	visu.plot_centers_by_label_color(data)
+	plt.show()
+croissants()

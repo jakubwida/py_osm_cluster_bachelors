@@ -34,6 +34,7 @@ class GeneralTest:
 
 	def test_data_object(self,file,n_of_tests,function,function_kwargs):
 		function_kwargs["on_step"]=self.harvest_rand_index
+		#function_kwargs["iterations"]=15
 		data_obj = Coords()
 		data_obj.read_file(file)
 		self.current_object = data_obj
@@ -78,10 +79,11 @@ class GeneralTest:
 
 	def calculate_avg_stdev(self,compiled_data):
 		out={}
+		#print(compiled_data["rand_indexes"])
 		out["rand_indexes"] = list(zip(*compiled_data["rand_indexes"]))
 		out["rand_indexes"] = [statistic.stdev_avg(x) for x in out["rand_indexes"]]
+		print(out["rand_indexes"])
 
-		out["initial_standalone"] = {k:statistic.stdev_avg(compiled_data["initial_standalone"][k]) for k in compiled_data["initial_standalone"]}
 
 		#out["initial_standalone"] = [statistic.stdev_avg(x) for x in out["rand_indexes"]]
 		for i in compiled_data:
@@ -89,26 +91,33 @@ class GeneralTest:
 				out[i] = [item for sublist in compiled_data[i] for item in sublist]
 				#print(out[i])
 				out[i] = statistic.stdev_avg(out[i])
+		out["initial_standalone"] = {k:statistic.stdev_avg(compiled_data["initial_standalone"][k]) for k in compiled_data["initial_standalone"]}
 		return out;
 
 
-	def execute(self,folder_name):
-		data = self.compile_data(self.test_data_set(folder_name,5,partitioning.k_means,{}))
+	def execute(self,folder_name,n_of_tests,function,params):
+		data = self.compile_data(self.test_data_set(folder_name,n_of_tests,function,params))
 		return (data,self.calculate_avg_stdev(data))
 
 import py_osm_cluster
-def test_multiple_datasets(main_folder):
+def test_multiple_datasets(main_folder,n_of_tests,function,params):
 	short_folders = list(os.listdir(main_folder))
 	#folders = [main_folder+"/"+i for i in list(os.listdir(main_folder))]
 	gt = GeneralTest()
 	for i in short_folders:
-		full_folder =main_folder+"/"+i
-		data = gt.execute(full_folder)
-		#visu.lineplot(data[1]["rand_indexes"],i)
-		plt.plot(data[1]["rand_indexes"],label=i)
-		f = open("output_for:"+i,"w")
-		f.write(str(data[1]))
+		unexpected= True
+		while unexpected:
+			try:
+				full_folder =main_folder+"/"+i
+				data = gt.execute(full_folder,n_of_tests,function,params)
+				#visu.lineplot(data[1]["rand_indexes"],i)
+				plt.plot([ i[1] for i in data[1]["rand_indexes"]],label=i)
+				f = open("output_for:"+i,"w")
+				f.write(str(data[1]))
+				unexpected = False
+			except ZeroDivisionError:
+				unexpected = True
 	plt.xlabel("iteration")
 	plt.ylabel("Rand index")
-	plt.legend(loc='upper left')
+	plt.legend(loc='lower right')
 	plt.show()

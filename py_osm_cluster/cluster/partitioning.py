@@ -15,7 +15,7 @@ def _reassign_to_cluster_centers(data_obj):
 """ sets Coords.c_positions (data_obj) to means of clusters, as each cluster is represented by subset of Coords.coords with distinct Coords.labels on the same index """
 def _move_centers_to_centroids(data_obj):
 
-	center_sums = [[0.00000000001,0.00000000001] for i in range(data_obj.c_number)]
+	center_sums = [[0.0,0.0] for i in range(data_obj.c_number)]
 	num_in_clusters =[0 for i in range(data_obj.c_number)]
 	data_obj.c_positions =[None for i in range(data_obj.c_number)]
 	for num,i in enumerate(data_obj.labels):
@@ -33,7 +33,8 @@ def _init_forgy(data_obj):
 def _init_random_partitions(data_obj):
 	possibles = list(range(data_obj.c_number))
 	data_obj.labels = [random.choice(possibles) for i in data_obj.labels]
-	move_centers_to_centroids(data_obj)
+	#print(data_obj.labels)
+	_move_centers_to_centroids(data_obj)
 
 from numpy.random import choice
 """ requires data_obj with c_number set. makes clusters form random points, and updates centroids. CHANGES data_obj.labels"""
@@ -54,10 +55,11 @@ def _init_plus_plus(data_obj):
 			distances[num] = min([distances[num],newdistance])
 
 		sums = sum(distances)
-		distances = [i/sums for i in distances]
+		next_distances = [i/sums for i in distances]
 
 		indexes = list(range(len(data_obj.coords)))
-		new_center = choice(indexes,1,p=distances)
+		#print(distances)
+		new_center = choice(indexes,1,p=next_distances)
 		new_center = data_obj.coords[new_center]
 		data_obj.c_positions.append(new_center)
 	#inicjalizacja:
