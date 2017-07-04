@@ -99,7 +99,7 @@ def dunn_index(data_obj):
 	for i in cluster_key_pairs:
 		distances_between_cluster_centroids[i] = geom.distance(centroids[i[0]],centroids[i[1]])
 
-	print(cluster_key_pairs)
+
 	distances_between_clusters_as_min_dist_between_pairs = {}
 	for i in cluster_key_pairs:
 		point_pairs_between_2_clusters = list(itertools.product(clusters[i[0]],clusters[i[1]]))
@@ -151,15 +151,16 @@ def general_evaluate_clustered_object(data_obj):
 		internal_distances = internal_distances + current_internal_distances
 		avg_internal_distances_per_cluster.append(statistic.avg(current_internal_distances))
 	out["internal_distances"]=statistic.dict_evaluation(internal_distances)
-	#print(avg_internal_distances_per_cluster)
+	
 	out["internal_distances_per_cluster"] = statistic.dict_evaluation(avg_internal_distances_per_cluster)
 
 	external_distances =[]
 	cluster_key_pairs = itertools.combinations(list(cluster_dict.keys()),2)
 	for i in cluster_key_pairs:
 		external_distances = external_distances + list(itertools.product(cluster_dict[i[0]],cluster_dict[i[1]]))
-	external_distances = [geom.distance(i[0],i[1]) for i in external_distances]
-	out["external_distances"]=statistic.dict_evaluation(external_distances)
+	if(len(set(data_obj.labels)))>1:
+		external_distances = [geom.distance(i[0],i[1]) for i in external_distances]
+		out["external_distances"]=statistic.dict_evaluation(external_distances)
 
 
 	cluster_sizes =[]
@@ -179,9 +180,9 @@ def general_evaluate_clustered_object(data_obj):
 		distances_between_centroids_and_their_points.extend(distances)
 
 	out["centroid_and_their_points_distances"]=statistic.dict_evaluation(distances_between_centroids_and_their_points)
-
-	centroid_distances = [geom.distance(a[0],a[1]) for a in list(itertools.combinations(centroids,2))]
-	out["centroid_distances"]=statistic.dict_evaluation(centroid_distances)
+	if(len(set(data_obj.labels)))>1:
+		centroid_distances = [geom.distance(a[0],a[1]) for a in list(itertools.combinations(centroids,2))]
+		out["centroid_distances"]=statistic.dict_evaluation(centroid_distances)
 
 
 

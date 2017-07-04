@@ -29,8 +29,9 @@ class Relation:
 		self.geom =None
 		if self.complete:
 			self.geom =None
-			if self.tags["type"]=="multipolygon" or self.tags["type"]=="boundary":#this requires special treatment
-				self.get_multiploygon()
+			if "type" in self.tags:
+				if self.tags["type"]=="multipolygon" or self.tags["type"]=="boundary":#this requires special treatment
+					self.get_multiploygon()
 
 
 	def get_multiploygon(self):

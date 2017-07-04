@@ -8,3 +8,13 @@ def scikit_k_means(data_obj):
 	c = deepcopy(data_obj)
 	c.labels = labels
 	return(c)
+
+from sklearn.cluster import DBSCAN
+
+def scikit_dbscan(data_obj,**kwargs):
+	out = deepcopy(data_obj)
+	max_dist = kwargs.get("max_dist",0.05)
+	dbscan = DBSCAN(eps=max_dist)
+	dbscan.fit(data_obj.coords)
+	out.labels = list(dbscan.labels_)
+	return out

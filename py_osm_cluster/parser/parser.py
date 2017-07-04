@@ -18,12 +18,22 @@ class Parser:
 				self.nodes[child.attrib["id"]]=Node(child)
 			elif tag =="way":
 				self.ways[child.attrib["id"]]=Way(child,self)
-			elif tag =="relation":
-				self.relations[child.attrib["id"]]=Relation(child,self)
+			#elif tag =="relation":
+			#	self.relations[child.attrib["id"]]=Relation(child,self)
 
 	def get_buildings_data_obj(self):
 		out = C()
 		for i in list(self.ways.values()):
-			if "building" in i.tags:
+			#print(i.tags)
+			if "building" in i.tags and i.tags["building"]=="yes":
 				out.coords.append(list(i.geom.centroid.coords)[0])
+				#print("a building!")
+		return out
+
+	def get_buildings_by_address_nodes(self):
+		out = C()
+		for i in list(self.nodes.values()):
+			#print(i.tags)
+			if "addr:housenumber" in i.tags:
+				out.coords.append(list(i.geom.coords)[0])
 		return out
